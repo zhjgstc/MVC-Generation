@@ -7,21 +7,40 @@ _dbUser = "root"
 _dbPwd = "root"
 _dbName = "ccdm"
 
+#详细页面代码生成
+def DetailAction(_table,_columns,_path):
+    _tableName = "%s" % _table
+    _tableName = _tableName.split('_')[2]
+    _html = ""
+    for _columnItem in _columns:
+        if _columnItem[19]!="":
+            _html+="<div class=\"row col-xs-12\">\r"
+            _html+="<label class=\"col-xs-6 control-label pull-left\" for=\"form-field-1\"> "+_columnItem[19]+"：@Model."+_columnItem[3]+" </label>\r"
+            _html+="</div>\r"
+    _filePath = _path + "\\Detail.cshtml"
+    fo = open(_filePath, "w+")
+    fo.write(_html)
+    fo.close()
+
 #新增页面代码生成
 def NewAction(_table,_columns,_path):
     _tableName = "%s" % _table
-    _tableName = _tableName.split('_')[1]
+    _tableName = _tableName.split('_')[2]
     _html = "@using (Ajax.BeginForm(\"do" + _tableName.capitalize() + "\", \"" + _tableName.capitalize() + "\", new AjaxOptions { HttpMethod = \"POST\", OnSuccess = \"handle_resp\", OnFailure = \"failed_resp\", OnBegin = \"ajax_OnBegin\", OnComplete = \"ajax_OnComplete\" }, new { @id = \"checkout-form\", @class = \"form-horizontal\", @role = \"form\" }))\r"
     _html+="{\r"
 
     _html+="<div class=\"modal-body\">\r"
     for _columnItem in _columns:
-        _html+="<div class=\"form-group\">\r"
-        _html+="<label class=\"col-xs-4 control-label \" for=\"form-field-1\"> " + _columnItem[19] + "： </label>\r"
-        _html+="<div class=\"col-xs-8\">\r"
-        _html+="@Html.TextBoxFor(m => m." + _columnItem[3] + ", new { @id=\"" + _columnItem[3] + "_" + _columnItem[7] + "\",@class = \"col-xs-10 col-sm-10 \", @placeholder = \"请输入" + _columnItem[19] + "\" })\r"
-        _html+="</div>\r"
-        _html+="</div>\r"
+        if _columnItem[19]=="":
+            _html+="@Html.HiddenFor(m => m."+_columnItem[3]+ ", new { @id = \""+_columnItem[3]+ "_" + _columnItem[7]+"\"})\r";
+        else:
+            _html+="<div class=\"form-group\">\r"
+            _html+="<label class=\"col-xs-4 control-label \" for=\"form-field-1\"> " + _columnItem[19] + "： </label>\r"
+            _html+="<div class=\"col-xs-8\">\r"
+            _html+="@Html.TextBoxFor(m => m."+_columnItem[3]+ ", new { @id = \""+_columnItem[3]+ "_" + _columnItem[7]+"\", @class =\"col-xs-10 col-sm-10 \", @placeholder = \"请输入" + _columnItem[19] + "\" })\r";
+            _html+="</div>\r"
+            _html+="</div>\r"
+
     _html+="</div>\r"
     _html+="}"
     _filePath = _path + "\\New.cshtml"
@@ -32,17 +51,20 @@ def NewAction(_table,_columns,_path):
 #编辑页面代码生成
 def EditAction(_table,_columns,_path):
     _tableName = "%s" % _table
-    _tableName = _tableName.split('_')[1]
+    _tableName = _tableName.split('_')[2]
     _html = "@using (Ajax.BeginForm(\"do" + _tableName.capitalize() + "\", \"" + _tableName.capitalize() + "\", new AjaxOptions { HttpMethod = \"POST\", OnSuccess = \"handle_resp\", OnFailure = \"failed_resp\", OnBegin = \"ajax_OnBegin\", OnComplete = \"ajax_OnComplete\" }, new { @id = \"checkout-form\", @class = \"form-horizontal\", @role = \"form\" }))\r"
     _html+="{\r"
 
     for _columnItem in _columns:
-        _html+="<div class=\"form-group\">\r"
-        _html+="<label class=\"col-xs-2 control-label \" for=\"form-field-1\"> "+_columnItem[19]+"： </label>\r"
-        _html+="<div class=\"col-xs-4\">\r"
-        _html+="@Html.TextBoxFor(m => m." + _columnItem[3] + ", new { @id=\"" + _columnItem[3] + "_" + _columnItem[7] + "\",@class = \"col-xs-10 col-sm-10 \", @placeholder = \"请输入" + _columnItem[19] + "\" })\r"
-        _html+="</div>\r"
-        _html+="</div>\r"
+        if _columnItem[19]=="":
+            _html+="@Html.HiddenFor(m => m."+_columnItem[3]+ ", new { @id = \""+_columnItem[3]+ "_" + _columnItem[7]+"\"})\r";
+        else:
+            _html+="<div class=\"form-group\">\r"
+            _html+="<label class=\"col-xs-4 control-label \" for=\"form-field-1\"> " + _columnItem[19] + "： </label>\r"
+            _html+="<div class=\"col-xs-8\">\r"
+            _html+="@Html.TextBoxFor(m => m."+_columnItem[3]+ ", new { @id = \""+_columnItem[3]+ "_" + _columnItem[7]+"\", @class =\"col-xs-10 col-sm-10 \", @placeholder = \"请输入" + _columnItem[19] + "\" })\r";
+            _html+="</div>\r"
+            _html+="</div>\r"
 
     _html+="<div class=\"clearfix form-actions\">\r"
     _html+="<div class=\"col-md-offset-5 col-md-9\">\r"
@@ -61,9 +83,9 @@ def EditAction(_table,_columns,_path):
 #列表页代码生成
 def ListAction(_table,_columns,_path):
     _tableName = "%s" % _table
-    _tableName = _tableName.split('_')[1]
+    _tableName = _tableName.split('_')[2]
     #循环HTML table列表结构
-    _html = "<table id=\"dynamic-table\" class=\"table table-striped table-bordered table-hover\">\r"
+    _html = "<table id=\"dynamic-table"+_tableName.capitalize()+"\" class=\"table table-striped table-bordered table-hover\">\r"
     _html += "<thead>\r"
     _html += "<tr>\r"
     for _columnItem in _columns:
@@ -83,7 +105,7 @@ def ListAction(_table,_columns,_path):
     _html+="<script src=\"@Url.Content(\"~/assets/js/dataTables.buttons.min.js\")\"></script>\r";
 
     _html+="<script>\r";
-    _html+="var _dynamicTable = $('#dynamic-table').dataTable({\r";
+    _html+="var _dynamicTable"+_tableName.capitalize()+" = $('#dynamic-table"+_tableName.capitalize()+"').dataTable({\r";
     _html+="\"processing\": true,\r";
     _html+="\"serverSide\": true,\r";
     _html+="\"ordering\": false,\r";
@@ -122,7 +144,7 @@ def ListAction(_table,_columns,_path):
     _html+="_btns += \"<a class=\"green\" href=\"@Url.Action(\"Edit"+_tableName.capitalize()+"\",\""+_tableName.capitalize()+"\")?id=\" + data + "">\";\r";
     _html+="_btns += \"<i class=\"ace-icon fa fa-pencil bigger-130\"></i>编辑\";\r";
     _html+="_btns += \"</a>\";\r";
-    _html+="_btns += \"<a class=\"red\" href=\"#\" onclick=\"dialogConfirm_click('\" + data + \"')\">\";\r";
+    _html+="_btns += \"<a class=\"red\" href=\"#\" onclick=\"dialogConfirm"+_tableName.capitalize()+"_click('\" + data + \"')\">\";\r";
     _html+="_btns += \"<i class=\"ace-icon fa fa-trash-o bigger-130\"></i>删除\";\r";
     _html+="_btns += \"</a>\";\r";
     _html+="_btns += \"</div>\";\r";
@@ -130,11 +152,11 @@ def ListAction(_table,_columns,_path):
     _html+="}\r";
     _html+="}]\r";
     _html+="});\r";
-    _html+="$(\"#dynamic-table_length\").parent().parent().hide();\r";
-    _html+="function delete_click(id) {\r";
+    _html+="$(\"#dynamic-table"+_tableName.capitalize()+"_length\").parent().parent().hide();\r";
+    _html+="function delete"+_tableName.capitalize()+"_click(id) {\r";
     _html+="$.axs('@Url.Action(\"doDelete"+_tableName.capitalize()+"\", \""+_tableName.capitalize()+"\")', { id: id }, function (data) {\r";
     _html+="if (data.flag) {\r";
-    _html+="_dynamicTable.DataTable().ajax.reload();\r";
+    _html+="_dynamicTable"+_tableName.capitalize()+".DataTable().ajax.reload();\r";
     _html+="} else {\r";
     _html+="bootbox.dialog({\r";
     _html+="message: data.msg,\r";
@@ -148,7 +170,7 @@ def ListAction(_table,_columns,_path):
     _html+="}\r";
     _html+="});\r";
     _html+="}\r";
-    _html+="function dialogConfirm_click(id)\r";
+    _html+="function dialogConfirm"+_tableName.capitalize()+"_click(id)\r";
     _html+="{\r";
     _html+="$(\"#dialog-confirm\").removeClass('hide').dialog({\r";
     _html+="resizable: false,\r";
@@ -161,7 +183,7 @@ def ListAction(_table,_columns,_path):
     _html+="html: \"<i class='ace-icon fa fa-trash-o bigger-110'></i>&nbsp; 删除\",\r";
     _html+="\"class\": \"btn btn-danger btn-minier\",\r";
     _html+="click: function () {\r";
-    _html+="delete_click(id);\r";
+    _html+="delete"+_tableName.capitalize()+"_click(id);\r";
     _html+="$(this).dialog(\"close\");\r";
     _html+="}\r";
     _html+="}\r";
@@ -187,7 +209,7 @@ def ListAction(_table,_columns,_path):
 #控制器代码生成
 def ControllerAction(_table,_columns,_path):
     _fullTableName = "%s" % _table
-    _tableName = _fullTableName.split('_')[1]
+    _tableName = _fullTableName.split('_')[2]
 
     _html = "BaseRepository<"+_fullTableName+"> _Rep"+_tableName.capitalize()+" = new BaseRepository<"+_fullTableName+">();\r"
     _html += "/// <summary>\r"
@@ -214,7 +236,7 @@ def ControllerAction(_table,_columns,_path):
     _html += "/// </summary>\r"
     _html += "/// <param name=\"param\">DataTables 页面参数</param>\r"
     _html += "/// <returns>返回Json数据集</returns>\r"
-    _html += "public JsonResult GetListData(DataTableParam param)\r"
+    _html += "public JsonResult Get"+_tableName.capitalize()+"ListData(DataTableParam param)\r"
     _html += "{\r"
     _html += "try\r"
     _html += "{\r"
@@ -302,10 +324,64 @@ def ControllerAction(_table,_columns,_path):
     _html += "}\r"
     _html += "return Json(_msg);\r"
     _html += "}\r"
+
+    _html += "/// <summary>\r"
+    _html += "/// 根据主键id查找数据\r"
+    _html += "/// </summary>\r"
+    _html += "/// <param name=\"id\">主键id</param>\r"
+    _html += "/// <returns>json</returns>\r"
+    _html += "public JsonResult Get"+_tableName.capitalize()+"DataByID(string id)\r"
+    _html += "{\r"
+    _html += "Msg _msg = new Msg();\r"
+    _html += "string _supplierID = Session[Keys.SUPPLIERID].ToString();\r"
+    _html += "var _m"+_tableName.capitalize()+" = _Rep"+_tableName.capitalize()+".GetFirst(w => w.supplierCompanyID == _supplierID && w.id == id);\r"
+    _html += "_msg.flag = _m"+_tableName.capitalize()+" != null && !string.IsNullOrEmpty(_m"+_tableName.capitalize()+".id);\r"
+    _html += "_msg.data = _m"+_tableName.capitalize()+";\r"
+    _html += "_msg.msg = !_msg.flag ? \"无法找到对应数据\" : \"操作成功\";\r"
+    _html += "return Json(_msg);\r"
+    _html += "}"
     _filePath = _path + "\\Controller.cs"
     fo = open(_filePath, "w+")
     fo.write(_html)
     fo.close()
+
+def EditJavaScript(_table,_columns,_path):
+    _tableName = "%s" % _table
+    _tableName = _tableName.split('_')[2]
+    _html = "function Modaltable"+_tableName.capitalize()+"_click(id) {\r"
+    _html += "$.axs('@Url.Action(\"Get"+_tableName.capitalize()+"DataByID\", \""+_tableName.capitalize()+"\")', { id: id }, function (res) {\r"
+    _html += "if (res.flag) {\r"
+    for _columnItem in _columns:
+        _id = _columnItem[3]+ "_" + _columnItem[7]
+        _html += "$('#my-modal"+_tableName.capitalize()+"  #"+_id+"').val(res.data."+_columnItem[3]+");\r"
+    
+    _html += "$('#my-modal"+_tableName.capitalize()+"').modal('show');\r"
+    _html += "} else {\r"
+    _html += "bootbox.dialog({\r"
+    _html += "message: res.msg,\r"
+    _html += "buttons: {\r"
+    _html += "\"success\": {\r"
+    _html += "\"label\": \"确定\",\r"
+    _html += "\"className\": \"btn-sm btn-primary\"\r";
+    _html += "}\r"
+    _html += "}\r"
+    _html += "});\r"
+    _html += "}\r"
+    _html += "});\r"
+    _html += "}\r"
+
+    _html += "function NewModaltable"+_tableName.capitalize()+"_click() {\r"
+    for _columnItem in _columns:
+        _id = _columnItem[3]+ "_" + _columnItem[7]
+        _html += "$('#my-modal"+_tableName.capitalize()+"  #"+_id+"').val(\"\");\r"
+
+    _html += "$('#my-modal"+_tableName.capitalize()+"').modal('show');\r"
+    _html += "}\r"
+    _filePath = _path + "\\javascript.txt"
+    fo = open(_filePath, "w+")
+    fo.write(_html)
+    fo.close()
+
 db = pymysql.connect(_dbAddress,_dbUser,_dbPwd,_dbName,charset='utf8')#数据库链接地址、账号、密码、数据库名称
 
 # 使用 cursor() 方法创建一个游标对象 cursor
@@ -328,6 +404,8 @@ for row in data:
     EditAction(row,_preporetyList,_path)
     ListAction(row,_preporetyList,_path)
     ControllerAction(row,_preporetyList,_path)
+    EditJavaScript(row,_preporetyList,_path)
+    DetailAction(row,_preporetyList,_path)
     print("=========%s代码生成完成=========="% row)
 
 # 关闭数据库连接
