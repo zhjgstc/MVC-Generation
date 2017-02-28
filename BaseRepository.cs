@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace customer.database.data
+namespace jiehaixi.cnooc.customer.database.data
 {
     /// <summary>
     /// 作者：章建国
@@ -85,6 +85,23 @@ namespace customer.database.data
         public IQueryable<T> LoadEntities(System.Linq.Expressions.Expression<Func<T, bool>> wherelambda)
         {
             return db.Set<T>().Where<T>(wherelambda).AsQueryable();
+        }
+
+        /// <summary>
+        /// 返回单个数据模型
+        /// </summary>
+        /// <param name="wherelambda"></param>
+        /// <returns></returns>
+        public T GetFirst(System.Linq.Expressions.Expression<Func<T, bool>> wherelambda)
+        {
+            try
+            {
+                return db.Set<T>().Where<T>(wherelambda).AsQueryable().First();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>
